@@ -4,54 +4,70 @@ import { ExpenseForm } from './components/ExpenseForm';
 import { ExpenseList } from './components/ExpenseList';
 import { Expense, ExpenseFormData, payment_types } from './types';
 
+const API_URL = 'https://expense-record-api.onrender.com/api'; // Change this to always use the production URL
+
 function App() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch expenses from the server when component mounts
   useEffect(() => {
     fetchExpenses();
   }, []);
 
   const fetchExpenses = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/expenses');
+      setIsLoading(true);
+      setError(null);
+      console.log('Fetching from:', `${API_URL}/expenses`); // Add logging
+      const response = await fetch(`${API_URL}/expenses`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch expenses');
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
+      console.log('Fetched data:', data); // Add logging
       setExpenses(data);
     } catch (error) {
       console.error('Error fetching expenses:', error);
+      setError('Failed to load expenses. Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleAddExpense = async (expenseData: ExpenseFormData) => {
     try {
-      const response = await fetch('http://localhost:3000/api/expenses', {
+      const response = await fetch(`${API_URL}/expenses`, {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({...expenseData,
-          payment_type:expenseData.payment_type
-      }),
+        body: JSON.stringify({
+          ...expenseData,
+          payment_type: expenseData.paymentType // Ensure correct property name
+        }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to add expense');
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // const newExpense = await response.json();
-      // setExpenses([newExpense, ...expenses]);
-      await fetchExpenses(); // Refresh the list after addingy
+      await fetchExpenses(); // Refresh the list after adding
     } catch (error) {
       console.error('Error adding expense:', error);
     }
   };
 
-  const handleDeleteExpense = async (id: string) => {
+  const handleDeleteExpense = async (id: number) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/expenses/${id}`, {
+      const response = await fetch(`${API_URL}/expenses/${id}`, {
         method: 'DELETE',
       });
 
@@ -60,7 +76,7 @@ function App() {
       }
 
       setExpenses(expenses.filter(expense => expense.id !== id));
-      await  fetchExpenses(); // Refresh the list after deletion
+      await fetchExpenses(); // Refresh the list after deletion
     } catch (error) {
       console.error('Error deleting expense:', error);
     }
@@ -69,8 +85,7 @@ function App() {
   const totalExpenses = expenses.reduce((sum, expense) => {
     const amount = typeof expense.amount === 'string' ? parseFloat(expense.amount) : expense.amount;
     return sum + (isNaN(amount) ? 0 : amount);
-
-  },0);
+  }, 0);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -97,7 +112,17 @@ function App() {
               <ExpenseForm onSubmit={handleAddExpense} />
             </div>
             <div className="lg:col-span-2">
-              <ExpenseList expenses={expenses} onDelete={handleDeleteExpense} />
+              {isLoading ? (
+                <div className="flex justify-center items-center h-32">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : error ? (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                  {error}
+                </div>
+              ) : (
+                <ExpenseList expenses={expenses} onDelete={handleDeleteExpense} />
+              )}
             </div>
           </div>
         </div>
