@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.google-button-container {
+  min-height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+  z-index: 10;
+  position: relative;
+}
+
+.google-button-container > div {
+  width: 100% !important;
+}

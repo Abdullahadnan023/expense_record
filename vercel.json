@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "builds": [
+    {
+      "src": "server/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "env": {
+    "DB_HOST": "bc0zu1dvwtgbqosunjap-mysql.services.clever-cloud.com",
+    "DB_USER": "ufidimjge9irtb6p",
+    "DB_PASSWORD": "nvi8yaE2ZI25DyRrIbLt",
+    "DB_NAME": "bc0zu1dvwtgbqosunjap",
+    "DB_PORT": "3306"
+  }
+}
