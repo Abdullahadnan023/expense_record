@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint .",
+    "build": "npm install && tsc && vite build",
+    "start": "node server/index.js",
     "preview": "vite preview",
     "server": "node server/index.js",
     "vercel-build": "npm run build"
