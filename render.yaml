@@ -1,12 +1,10 @@
 services:
   - type: web
-    name: expense-tracker
+    name: expense-tracker-api
     env: node
-    buildCommand: ./build.sh
-    startCommand: npm start
+    buildCommand: npm install
+    startCommand: node server/index.js
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: DB_HOST
         value: bc0zu1dvwtgbqosunjap-mysql.services.clever-cloud.com
       - key: DB_USER
@@ -17,5 +15,7 @@ services:
         value: bc0zu1dvwtgbqosunjap
       - key: DB_PORT
         value: 3306
-      - key: JWT_SECRET
+
+
+        value: your-secure-secret-key-here      - key: JWT_SECRET      - key: JWT_SECRET
         value: your-secure-secret-key-here
